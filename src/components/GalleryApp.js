@@ -1,5 +1,7 @@
 import { imagesData } from "../data/images";
 import { createImageGrid } from "./ImageCard";
+import { createFavouritesCounter } from "./FavouritesCounter";
+import { createImageModal } from "./ImageModal";
 
 export function createGalleryApp(){
     
@@ -34,32 +36,29 @@ export function createGalleryApp(){
     const main = document.createElement("main")
     main.className="max-w-7xl mx-auto px-6 py-8 text-center ";
 
-    //contador de favoritos
-    const counterComponent = document.createElement("h2")
-    counterComponent.textContent="<-- aqui ira el componente FavouritesCounter-->"
+    // Llevamos la cuenta de los favoritos aquí, en el componente padre.
+    let favoritesCount = imagesData.filter(img => img.isFavourite).length;
 
-    //modal de imagen
+    // Creamos el contador con el número inicial de favoritos.
+    const counterComponent = createFavouritesCounter(favoritesCount);
 
-    const imageModal= document.createElement("h2")
-    imageModal.textContent="<-- aqui ira el componente ImageModal-->"
+    // Esta función se ejecutará cada vez que se haga clic en el corazón de una tarjeta.
+    const handleFavoriteToggle = (image, isFav) => {
+        // Actualizamos el contador. Si es favorito, sumamos 1; si no, restamos 1.
+        favoritesCount = isFav ? favoritesCount + 1 : favoritesCount - 1;
+        // Le pedimos al componente del contador que muestre el nuevo número.
+        counterComponent.updateCount(favoritesCount);
+    };
 
-    //grid de imagenes
-
-    const gridComponent = document.createElement("h2")
-    gridComponent.textContent=
-    "<-- aqui ira el componente gridComponent-->"
-    // const imageGrid= createImageGrid();
-    const imageComponent = createImageGrid(imagesData);
-    
-    main.appendChild(imageComponent.element);
-
-
+    const imageModalComponent = createImageModal();
 
     //añadimos  todo al main
+    main.appendChild(counterComponent.element);
 
-    main.appendChild(counterComponent)
-    main.appendChild(imageModal)
-    main.appendChild(gridComponent)
+    // Ahora pasamos las 3 funciones que la rejilla necesita:
+    // 1. Los datos, 2. Qué hacer al hacer clic en la imagen, 3. Qué hacer al marcar/desmarcar favorito.
+    const imageGridComponent = createImageGrid(imagesData, imageModalComponent.open, handleFavoriteToggle);
+    main.appendChild(imageGridComponent.element);
 
 
 
@@ -87,6 +86,8 @@ footer.appendChild(footerContentDiv)
     container.appendChild(header)
     container.appendChild(main)
     container.appendChild(footer)
+
+    container.appendChild(imageModalComponent.element);
 
 
 
